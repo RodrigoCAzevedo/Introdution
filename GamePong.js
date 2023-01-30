@@ -25,8 +25,23 @@ let colidiu = false;
 let meusPontos = 0;
 let pontosOponente = 0;
 
+//sons do jogo
+let raquetada;
+let ponto;
+let trilha;
+
+//Chance de errar
+let chanceDeErrar = 0;
+
+function preload(){
+  trilha = loadSound("trilha.mp3");
+  ponto = loadSound("ponto.mp3");
+  raquetada = loadSound("raquetada.mp3");
+}
+
 function setup() {
   createCanvas(600, 400);
+  trilha.loop();
 }
 
 function draw() {
@@ -86,6 +101,7 @@ function movimentaMinhaRaquete(){
 function verificaColisaoRaquete(){
   if (xBolinha - raio < xRaquete + CompRaquete && yBolinha - raio < yRaquete + AltRaquete && yBolinha + raio > yRaquete){
     velXBolinha *= -1;
+    raquetada.play();
   }
 }
 
@@ -93,25 +109,58 @@ function verificaColisaoRaquete(x, y){
   colidiu = collideRectCircle(x, y, CompRaquete, AltRaquete, xBolinha, yBolinha, raio);
   if (colidiu){
     velXBolinha *= -1;
+    raquetada.play();
   }
 }
 
 function movimentaRaqueteOponente(){
-  velocidadeYOponente = yBolinha - yRaqueteOponente - CompRaquete / 2 - 30;
-  yRaqueteOponente += velocidadeYOponente
+  velocidadeYOponente = yBolinha -yRaqueteOponente - CompRaquete / 2 - 30;
+  yRaqueteOponente += velocidadeYOponente + chanceDeErrar
+  calculaChanceDeErrar()
 }
 
 function incluiPlacar(){
-  fill(255)
-  text(meusPontos, 278, 26);
-  text(pontosOponente, 321, 26);
+  stroke(255);
+  textAlign(CENTER);
+  textSize(16);
+  fill(color(255, 140, 0));
+  rect(150, 10, 40, 20);
+  fill(255);
+  text(meusPontos, 170, 26);
+  fill(color(255, 140, 0));
+  rect(450, 10, 40, 20);
+  fill(255);
+  text(pontosOponente, 470, 26);
 }
 
 function marcaPonto(){
   if(xBolinha > 590){
     meusPontos += 1;
+    ponto.play();
   }
   if (xBolinha < 10){
     pontosOponente += 1;
+    ponto.play();
   }
+}
+
+function calculaChanceDeErrar() {
+  if (pontosOponente >= meusPontos) {
+    chanceDeErrar += 1
+    if (chanceDeErrar >= 39){
+    chanceDeErrar = 40
+    }
+  } else {
+    chanceDeErrar -= 1
+    if (chanceDeErrar <= 35){
+    chanceDeErrar = 35
+    }
+  }
+}
+
+function bolinhaNaoFicaPresa(){
+    if (xBolinha + raio < 0){
+    console.log('bolinha ficou presa');
+    xBolinha = 300;
+    }
 }
